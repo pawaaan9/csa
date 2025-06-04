@@ -1,4 +1,5 @@
 import { z } from "astro/zod";
+// Removed invalid Props type alias due to incorrect collection name.
 
 export const ArticleLoaderSchema = z.object({
   title: z.string(),
@@ -43,6 +44,7 @@ export const EventLoaderSchema = z.object({
   endDate: z.coerce.date().optional(),
   paidEvent: z.boolean(),
   industryEvent: z.boolean(),
+  exhibitor: z.boolean(),
   ticketTailorUrl: z.string().url().optional(),
   status: z.enum(["Available", "Sold out"]),
 });
