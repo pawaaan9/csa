@@ -1,0 +1,170 @@
+---
+import { Image } from "astro:assets";
+const images = import.meta.glob<{ default: ImageMetadata }>(
+  "../assets/carousel/*.webp",
+  { eager: true },
+);
+---
+
+<astro-carousel>
+  <div class="relative mx-auto h-auto max-w-5xl">
+    <div
+      class="relative aspect-square overflow-hidden rounded-lg sm:aspect-video"
+    >
+      {
+        Object.values(images).map((img, index) => {
+          return (
+            <div
+              class="fade-in absolute h-full w-full ease-in-out"
+              data-carousel-item
+              data-active={index === 0 ? "true" : "false"}
+            >
+              <Image
+                src={img.default}
+                loading="eager"
+                layout="none"
+                class="block h-full w-full object-cover"
+                alt="..."
+              />
+            </div>
+          );
+        })
+      }
+    </div>
+    <!-- Slider controls -->
+    <button
+      type="button"
+      class="group hover:bg-primary-800/50 absolute top-0 left-0 z-30 flex h-full cursor-pointer items-center justify-center px-4 transition focus:outline-none"
+      data-carousel-prev
+    >
+      <span
+        class="bg-primary-800/50 inline-flex h-8 w-8 items-center justify-center rounded-full group-hover:bg-transparent sm:h-10 sm:w-10"
+      >
+        <svg
+          class="text-primary-100 h-5 w-5 fill-none stroke-current sm:h-6 sm:w-6"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+          ><path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M15 19l-7-7 7-7"></path></svg
+        >
+        <span class="sr-only">Previous</span>
+      </span>
+    </button>
+    <button
+      type="button"
+      class="group hover:bg-primary-800/50 absolute top-0 right-0 z-30 flex h-full cursor-pointer items-center justify-center px-4 transition focus:outline-none"
+      data-carousel-next
+    >
+      <span
+        class="bg-primary-800/50 inline-flex h-8 w-8 items-center justify-center rounded-full group-hover:bg-transparent sm:h-10 sm:w-10"
+      >
+        <svg
+          class="text-primary-100 h-5 w-5 fill-none stroke-current sm:h-6 sm:w-6"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+          ><path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 5l7 7-7 7"></path></svg
+        >
+        <span class="sr-only">Next</span>
+      </span>
+    </button>
+  </div>
+  <!-- Slider indicators -->
+  <div class="mt-5 flex justify-center gap-3">
+    {
+      Object.values(images).map((_, i) => (
+        <button
+          type="button"
+          class="bg-primary-500 hover:bg-primary-400 aria-current:bg-primary-200 h-3 w-3 cursor-pointer rounded-full"
+          aria-current={i === 0 ? "true" : "false"}
+          aria-label={`Go to slide ${i + 1}`}
+          data-carousel-slide-to={i}
+        />
+      ))
+    }
+  </div>
+</astro-carousel>
+
+<script>
+  class AstroCarousel extends HTMLElement {
+    items = this.querySelectorAll("[data-carousel-item]");
+    itemButtons = this.querySelectorAll("[data-carousel-slide-to]");
+    active = 0;
+    total = this.items.length;
+    timer = setInterval(() => this.next(), 4000);
+
+    constructor() {
+      super();
+      this.setupEventListeners();
+    }
+
+    setupEventListeners() {
+      this.querySelector("[data-carousel-next]")?.addEventListener(
+        "click",
+        () => {
+          this.resetTimer();
+          this.next();
+        },
+      );
+
+      this.querySelector("[data-carousel-prev]")?.addEventListener(
+        "click",
+        () => {
+          this.resetTimer();
+          this.prev();
+        },
+      );
+
+      this.itemButtons.forEach((b, i) =>
+        b.addEventListener("click", () => {
+          this.resetTimer();
+          this.jumpTo(i);
+        }),
+      );
+    }
+
+    next() {
+      this.jumpTo((this.active + 1) % this.total);
+    }
+
+    prev() {
+      this.jumpTo((this.active - 1 + this.total) % this.total);
+    }
+
+    jumpTo(n: number) {
+      this.active = n;
+      this.items.forEach((item, index) => {
+        item.setAttribute("data-active", String(index === n));
+        this.itemButtons[index]?.setAttribute(
+          "aria-current",
+          String(index === n),
+        );
+      });
+    }
+
+    resetTimer() {
+      clearInterval(this.timer);
+      this.timer = setInterval(() => this.next(), 3000);
+    }
+  }
+
+  customElements.define("astro-carousel", AstroCarousel);
+</script>
+<style>
+  .fade-in {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease-in-out;
+  }
+
+  .fade-in[data-active="true"] {
+    opacity: 1;
+    pointer-events: auto;
+  }
+</style>
