@@ -2,6 +2,13 @@
 import { Image } from "astro:assets";
 import { getCollection, render } from "astro:content";
 import Layout from "~/layouts/Layout.astro";
+import type { CollectionEntry } from "astro:content";
+import type { z } from "astro/zod";
+import { DownloadLoaderSchema } from "~/loaders/contentful/schemas";
+
+type DownloadEntry = CollectionEntry<"downloads"> & {
+  data: z.infer<typeof DownloadLoaderSchema>;
+};
 
 export async function getStaticPaths() {
   const downloads = await getCollection("downloads");
@@ -11,7 +18,7 @@ export async function getStaticPaths() {
   }));
 }
 
-const { download } = Astro.props;
+const { download } = Astro.props as { download: DownloadEntry };
 const { Content } = await render(download);
 ---
 
@@ -24,18 +31,20 @@ const { Content } = await render(download);
       class="my-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between md:mt-24 md:mb-12"
     >
       <div class="flex-1">
-        <time
-          class="block text-lg font-semibold tracking-wide text-blue-500 uppercase"
-          datetime={download.data.date.toISOString()}
-        >
-          {
-            download.data.date.toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })
-          }
-        </time>
+        {download.data.date && (
+          <time
+            class="block text-lg font-semibold tracking-wide text-blue-500 uppercase"
+            datetime={download.data.date.toISOString()}
+          >
+            {
+              download.data.date.toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })
+            }
+          </time>
+        )}
         <h1
           class="text-primary-100 mt-2 text-4xl font-bold tracking-tight md:text-5xl"
         >

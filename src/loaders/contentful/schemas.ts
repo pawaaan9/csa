@@ -20,7 +20,7 @@ export const DownloadLoaderSchema = z.object({
   title: z.string(),
   description: z.string(),
   slug: z.string(),
-  date: z.coerce.date(),
+  date: z.coerce.date().optional(),
   pdf: z.string().url().optional(),
   heroImage: z.object({
     alt: z.string(),
@@ -147,7 +147,7 @@ export const DownloadApiResponseSchema = z.object({
           title: z.string(),
           description: z.string(),
           slug: z.string(),
-          date: z.coerce.date(),
+          date: z.coerce.date().optional(),
           heroImage: z.object({
             fields: z.object({
               title: z.string().optional(),

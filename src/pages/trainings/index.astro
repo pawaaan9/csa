@@ -2,10 +2,17 @@
 import Layout from "~/layouts/Layout.astro";
 import { getCollection } from "astro:content";
 import { Image } from "astro:assets";
+import type { CollectionEntry } from "astro:content";
+import type { z } from "astro/zod";
+import { DownloadLoaderSchema } from "~/loaders/contentful/schemas";
+
+type DownloadEntry = CollectionEntry<"downloads"> & {
+  data: z.infer<typeof DownloadLoaderSchema>;
+};
 
 const downloads = (await getCollection("downloads")).sort(
-  (a, b) => a.data.date.valueOf() - b.data.date.valueOf(),
-);
+  (a, b) => (a.data.date?.valueOf() ?? 0) - (b.data.date?.valueOf() ?? 0),
+) as DownloadEntry[];
 ---
 
 <Layout title="Trainings — Critical Systems Analysis">
@@ -29,16 +36,18 @@ const downloads = (await getCollection("downloads")).sort(
                   layout="full-width"
                 />
               </div>
-              <time
-                class="text-primary-400 mt-4 block text-sm tracking-wide uppercase"
-                datetime={data.date.toISOString()}
-              >
-                {data.date.toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </time>
+              {data.date && (
+                <time
+                  class="text-primary-400 mt-4 block text-sm tracking-wide uppercase"
+                  datetime={data.date.toISOString()}
+                >
+                  {data.date.toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </time>
+              )}
               <h2 class="text-primary-100 mt-1 block text-lg font-semibold group-hover:text-blue-500">
                 {data.title}
               </h2>
