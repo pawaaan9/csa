@@ -13,6 +13,7 @@ export const ArticleLoaderSchema = z.object({
   author: z.object({
     name: z.string(),
   }),
+  pdf: z.string().url().optional(),
 });
 
 export const DownloadLoaderSchema = z.object({
@@ -80,6 +81,17 @@ export const ArticleApiResponseSchema = z.object({
               name: z.string(),
             }),
           }),
+          pdf: z
+            .object({
+              fields: z.object({
+                title: z.string().optional(),
+                description: z.string().optional(),
+                file: z.object({
+                  url: z.preprocess((val) => `https:${val}`, z.string().url()),
+                }),
+              }),
+            })
+            .optional(),
         }),
       })
       .transform((data) => {
@@ -99,6 +111,7 @@ export const ArticleApiResponseSchema = z.object({
             name: data.fields.author.fields.name,
           },
           content: data.fields.content,
+          pdf: data.fields.pdf?.fields.file.url,
         };
       }),
   ),
