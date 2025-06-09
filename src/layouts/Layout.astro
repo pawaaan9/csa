@@ -44,6 +44,14 @@ const ogImageURL = new URL(ogImage.url, Astro.site).href;
       name="google-site-verification"
       content="orcPxI47GSa-cRvY11tUe6iGg2IO_RPvnA1q95iEM3M"
     />
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-2XC3Q77JSK"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-2XC3Q77JSK');
+    </script>
     <link rel="canonical" href={Astro.url.href} />
     <meta name="title" content={formattedTitle} />
     <meta name="description" content={formattedDescription} />
